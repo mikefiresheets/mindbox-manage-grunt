@@ -1,13 +1,26 @@
 {
   "name": "MindboxManage",
+  "description": "Grunt port of Mindbox's manage.sh Bash script",
   "version": "0.1.0",
-  "author": "Mike Firesheets",
-  "private": "true",
-
-  "scripts": {
-    "test": "grunt test --verbose"
+  "author": {
+    "name": "Mike Firesheets",
+    "email": "mfiresheets@mindboxstudios.com"
   },
-
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/mikefiresheets/mindbox-manage-grunt/blob/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikefiresheets/mindbox-manage-grunt.git"
+  },
+  "private": "true",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "grunt install --verbose"
+  },
   "devDependencies": {
     "grunt": "~0.4.4",
     "grunt-bower": "0.11.0",
@@ -23,8 +36,9 @@
     "grunt-sass": "~0.12.0",
     "grunt-shell": "~0.6.4",
     "grunt-symfony2": "~0.4.0",
-    "load-grunt-tasks": "~0.4.0",
-
-    "requirejs": "~2.1.11"
-  }
+    "load-grunt-tasks": "~0.4.0"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.4"
+  },
 }

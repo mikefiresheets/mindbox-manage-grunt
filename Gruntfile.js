@@ -1,12 +1,21 @@
+/*
+ * Environment management tasks for Symfony2/Angular workflow
+ *
+ * This script originated as a port of manage.sh from Bash to Grunt. Feel free
+ * to modify it to suit your needs. Config variables are helpfully provided up
+ * top to control most common things, and several convenience tasks are defined
+ * to allow more fine-grained execution of the various workflow steps.
+ */
+
 'use strict';
 
 module.exports = function(grunt) {
+  var environments = ['prod', 'stage', 'qa', 'test', 'dev', 'local'];
 
   grunt.initConfig({
-
     pkg: grunt.file.readJSON('package.json'),
 
-    // Config vars
+    /** Configuration variables */
     bins: {
       behat:    'bin/behat',
       composer: 'composer.phar',
@@ -28,7 +37,9 @@ module.exports = function(grunt) {
     urls: {
       composer: 'https://getcomposer.org/installer'
     },
+    /** -- */
 
+    /** Plugin-specific configuration */
     bower: {
       dev: {
         options: { expand: true },
@@ -119,6 +130,9 @@ module.exports = function(grunt) {
       stage: {
         args: { 'no-debug': true }
       },
+      test: {
+        args: { 'no-debug': true }
+      },
       dev: {},
       local: {}
     },
@@ -131,6 +145,9 @@ module.exports = function(grunt) {
         args: { 'no-debug': true }
       },
       stage: {
+        args: { 'no-debug': true }
+      },
+      test: {
         args: { 'no-debug': true }
       },
       dev: {
@@ -155,6 +172,12 @@ module.exports = function(grunt) {
         }
       },
       stage: {
+        args: {
+          'no-debug':  true,
+          'no-warmup': true
+        }
+      },
+      test: {
         args: {
           'no-debug':  true,
           'no-warmup': true
@@ -234,7 +257,7 @@ module.exports = function(grunt) {
         tasks:   ['copy:assets', 'sass:build']
       }
     }
-
+    /** -- */
   });
 
   // Load all Grunt tasks
@@ -243,51 +266,67 @@ module.exports = function(grunt) {
   // Environment setting from command line
   grunt.config('env', grunt.option('env') || process.env.GRUNT_ENV || 'dev');
 
-  // Task aliases from manage.sh
+
+  // Convenience aliases
   grunt.task.registerTask('behat', 'shell:behat');
   grunt.task.registerTask('composer', ['shell:composer-require', 'shell:composer-install']);
   grunt.task.registerTask('npm', 'shell:npm');
 
+  // Task aliases for manage.sh tasks
   grunt.task.registerTask('submodules', ['shell:git-submodule-init', 'shell:git-submodule-update']);
   grunt.task.registerTask('configure', 'copy:configs');
   grunt.task.registerTask('vendor', ['composer', 'npm', 'bower']);
   grunt.task.registerTask('migrate', 'sf2-console:migrate');
-  grunt.task.registerTask('cache', function() {
+  grunt.task.registerTask('assets', function() {
     if (grunt.config('env') === 'all') {
-      // grunt.log.writeln('Clearing cache for all environments...');
-      ['prod', 'stage', 'qa', 'dev', 'local'].forEach(function(e) {
-        grunt.task.run('sf2-cache-clear:' + e);
+      environments.forEach(function(env) {
+        grunt.task.run('sf2-assetic-dump:' + env);
       });
     } else {
-      // grunt.log.writeln('Clearing cache for ' + grunt.config('env') + ' environment...');
+      grunt.task.run('sf2-assetic-dump:' + grunt.config('env'));
+    }
+  });
+  grunt.task.registerTask('cache', function() {
+    if (grunt.config('env') === 'all') {
+      environments.forEach(function(env) {
+        grunt.task.run('sf2-cache-clear:' + env);
+      });
+    } else {
       grunt.task.run('sf2-cache-clear:' + grunt.config('env'));
     }
   });
   grunt.task.registerTask('plans', 'sf2-console:stripe');
   grunt.task.registerTask('tests', 'behat');
 
+  // Manage.sh behavior
+  grunt.task.registerTask('install', [
+    'submodules',
+    'configure',
+    'vendor',
+    'migrate',
+    'assets',
+    'cache',
+    'plans',
+    'tests'
+  ]);
+
+  grunt.task.registerTask('update', [
+    'submodules',
+    'shell:composer-update',
+    'npm',
+    'bower',
+    'migrate',
+    'assets',
+    'cache'
+  ]);
+
   // Other tasks
   grunt.task.registerTask('copy:assets', ['clean:build', 'copy:dev']);
   grunt.task.registerTask('dev',         ['copy:assets', 'sass:build', 'watch']);
   grunt.task.registerTask('dev:js',      ['copy:jsOnlyIgnoreVendor']);
 
-  // Manage.sh behavior
-  grunt.task.registerMultiTask('install', function() {
-    /*
-      $ grunt install:local:arg     {some stuff from config section}
-               name   target  args     data
-    */
-    grunt.log.writeln(this.name + ':' + this.target);
-  });
 
-  grunt.task.registerTask('default', [
-    // 'submodules',
-    'configure',
-    'vendor',
-    'migrate',
-    'cache',
-    // 'plans',
-    'tests'
-  ]);
+
+  grunt.task.registerTask('default', 'install');
 
 };
