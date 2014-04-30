@@ -1,0 +1,43 @@
+## IDE/system-generated files ##
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea
+.project
+.settings/
+.buildpath
+*.sublime-project
+*.sublime-workspace
+
+## Symfony files ##
+/web/bundles/
+/web/css/
+/web/js/
+/app/bootstrap.php.cache
+/app/cache/*
+!/app/cache/.gitkeep
+/app/logs/*
+!/app/logs/.gitkeep
+/build/
+/vendor/
+/bin/
+/composer.phar
+/app/config/parameters.yml
+
+## Custom files ##
+behat.yml
+/web/app_*.php
+/web/uploads/*
+!/web/uploads/
+/web/assets/
+*_local.*
+!*_local.*.dist
+node_modules
+*~
+.sass-cache
+
+!.gitkeep
