@@ -221,7 +221,7 @@ module.exports = function(grunt) {
           failOnError: true
         },
         command: function() {
-          if (!grunt.file.exists('./<%= bins.composer %>')) {
+          if (!grunt.file.exists('./composer.phar')) {
             grunt.log.writeln('Downloading composer.phar...');
             return '<%= bins.curl %> -sS <%= urls.composer %> | <%= bins.php %>';
           }

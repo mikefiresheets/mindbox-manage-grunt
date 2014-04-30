@@ -40,5 +40,5 @@
   },
   "peerDependencies": {
     "grunt": "~0.4.4"
-  },
+  }
 }
