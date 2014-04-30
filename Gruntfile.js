@@ -226,7 +226,7 @@ module.exports = function(grunt) {
             return '<%= bins.curl %> -sS <%= urls.composer %> | <%= bins.php %>';
           }
           grunt.log.write('Found composer.phar; running self-update...');
-          return '<%= bins.php %> <%= bins.composer %> self-update';
+          return '<%= bins.php %> <%= bins.composer %> self-update -n';
         }
       },
       'composer-update': {
@@ -267,17 +267,23 @@ module.exports = function(grunt) {
   grunt.config('env', grunt.option('env') || process.env.GRUNT_ENV || 'dev');
 
 
-  // Convenience aliases
+  // Ports of manage.sh tasks
   grunt.task.registerTask('behat', 'shell:behat');
   grunt.task.registerTask('composer', ['shell:composer-require', 'shell:composer-install']);
   grunt.task.registerTask('npm', 'shell:npm');
-
-  // Task aliases for manage.sh tasks
   grunt.task.registerTask('submodules', ['shell:git-submodule-init', 'shell:git-submodule-update']);
-  grunt.task.registerTask('configure', 'copy:configs');
+  grunt.task.registerTask('configure', function() {
+    if (grunt.config('env') === 'prod') {
+      grunt.task.run('clean:prod');
+    } else {
+      grunt.task.run('copy:configs');
+    }
+  });
   grunt.task.registerTask('vendor', ['composer', 'npm', 'bower']);
   grunt.task.registerTask('migrate', 'sf2-console:migrate');
   grunt.task.registerTask('assets', function() {
+    grunt.task.run('copy:assets');
+    // Only dump the full asset stack on the "all" option
     if (grunt.config('env') === 'all') {
       environments.forEach(function(env) {
         grunt.task.run('sf2-assetic-dump:' + env);
@@ -287,6 +293,7 @@ module.exports = function(grunt) {
     }
   });
   grunt.task.registerTask('cache', function() {
+    // Only clear the full cache set on the "all" option
     if (grunt.config('env') === 'all') {
       environments.forEach(function(env) {
         grunt.task.run('sf2-cache-clear:' + env);
