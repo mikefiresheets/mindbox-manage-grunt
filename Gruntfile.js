@@ -184,10 +184,16 @@ module.exports = function(grunt) {
         }
       },
       dev: {
-        args: { 'no-warmup': true }
+        args: {
+          'no-debug':  true,
+          'no-warmup': true
+        }
       },
       local: {
-        args: { 'no-warmup': true }
+        args: {
+          'no-debug':  true,
+          'no-warmup': true
+        }
       }
     },
 
